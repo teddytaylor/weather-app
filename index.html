@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's The Weather?</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <main class="m-content__wrap">
+        <div class="m-content">
+            <h1 class="m-title">What's The Weather?</h1>
+            <section class="m-zipcode">
+                <input type="text" id="zipCode" placeholder="Zip Code">
+                <input type="submit" value="Get Weather" id="getWeatherBtn">
+            </section>
+            <section class="m-temperature">
+                <span id="temperature">-</span>°F
+                <span id="humidity">-</span>
+            </section>
+        </div>
+    </main>
+
+    <!-- Input field for ZIP code and a button to trigger the fetch -->
+    <label for="zipCode">Enter ZIP Code:</label>
+    <input type="text" id="zipCode" placeholder="Enter Zip Code">
+    <button id="getWeatherBtn">Get Weather</button>
+
+    <!-- Display area for the temperature -->
+    <p>The current temperature is: </p>
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Forecast section -->
+    <div id="forecast">
+        <h2>7-Day Forecast</h2>
+        <div id="forecastContainer"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

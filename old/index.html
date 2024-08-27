@@ -7,12 +7,18 @@
     <title>What's The Weather?</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-
-    </style>
 </head>
 
 <body>
+    <div class="m-container">
+        <header class="m-header">
+            <form class="m-header__zip">
+                <input type="text" id="zipCode" placeholder="Zip Code">
+                <input type="submit" value="Get Weather" id="getWeatherBtn">
+            </form>
+            <h1></h1>
+        </header>
+    </div>
     <main class="m-content__wrap">
         <div class="m-content">
             <h1 class="m-title">What's The Weather?</h1>

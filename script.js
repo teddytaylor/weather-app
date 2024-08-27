@@ -1,141 +1,129 @@
-// Replace 'YOUR_API_KEY' with your actual API key from OpenWeatherMap
 const apiKey = '15117b74410ddddec93e0af9ed4d84a9';
 
-// Initialize the map
-let map;
-function initializeMap(lat, lon) {
-    if (map) {
-        map.setView([lat, lon], 10);
+function getWeather(zipCode = null, lat = null, lon = null) {
+    let url = '';
+
+    if (zipCode) {
+        url = `https://api.openweathermap.org/data/2.5/weather?zip=${zipCode},us&appid=${apiKey}&units=imperial`;
+    } else if (lat && lon) {
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`;
+    } else {
+        document.getElementById('weather').innerHTML = `<p class="error">Error: No location provided</p>`;
         return;
     }
-    map = L.map('map').setView([lat, lon], 10);
 
-    // Add the OpenWeatherMap tile layer
-    L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${apiKey}`, {
-        maxZoom: 19,
-        attribution: 'Map data &copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>'
-    }).addTo(map);
-}
-
-// Function to fetch weather data
-function fetchWeather(zipCode, countryCode = 'us') {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zipCode},${countryCode}&appid=${apiKey}&units=imperial`;
-
-    fetch(apiUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
+    fetch(url)
+        .then(response => response.json())
         .then(data => {
-            const temperature = data.main.temp;
-            const humidity = data.main.humidity;
-            const lat = data.coord.lat;
-            const lon = data.coord.lon;
+            const locationDiv = document.getElementById('location');
+            const weatherDiv = document.getElementById('weather');
+            const containerDiv = document.getElementById('container');
 
-            // Update the HTML element with the temperature
-            document.getElementById('temperature').textContent = temperature;
-            document.getElementById('humidity').textContent = humidity;
+            if (data.cod === 200) {
+                // Display location name in a separate section
+                locationDiv.innerHTML = `<h2>${data.name}</h2>`;
 
-            // Initialize the map with the fetched latitude and longitude
-            initializeMap(lat, lon);
+                // Clear previous weather class
+                containerDiv.className = '';
 
-            // Fetch the 7-day forecast
-            fetchForecast(lat, lon);
+                // Add a class to the weather div based on the weather description
+                const weatherMain = data.weather[0].main.toLowerCase();
+                switch (weatherMain) {
+                    case 'clear':
+                        containerDiv.classList.add('sunny');
+                        break;
+                    case 'clouds':
+                        containerDiv.classList.add('cloudy');
+                        break;
+                    case 'rain':
+                    case 'drizzle':
+                        containerDiv.classList.add('rainy');
+                        break;
+                    case 'snow':
+                        containerDiv.classList.add('snowy');
+                        break;
+                    default:
+                        containerDiv.classList.add('default-weather');
+                }
+
+                // Display weather data
+                weatherDiv.innerHTML = `
+                    <div class="weather-detail m-weather">
+                    <div class="m-weather__image"></div>
+                        <div class="m-weather__temperature">
+                        ${Math.round(data.main.temp)}°
+                        </div>
+                        <ul class="m-weather__other">
+                        <li>${data.wind.speed} m/s</li>
+                        <li>${data.weather[0].description}</li>
+                        <li>${data.main.humidity}%</li>
+                        </ul>
+                    </div>
+                `;
+                getForecast(data.coord.lat, data.coord.lon);
+            } else {
+                weatherDiv.innerHTML = `<p class="error">Error: ${data.message}</p>`;
+            }
         })
         .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-            document.getElementById('temperature').textContent = 'Error fetching temperature';
+            const weatherDiv = document.getElementById('weather');
+            weatherDiv.innerHTML = `<p class="error">Error: Unable to fetch data</p>`;
+            console.error('Error fetching the weather data:', error);
         });
 }
 
-// Function to fetch the 7-day forecast
-function fetchForecast(lat, lon) {
-    const forecastUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=${apiKey}&units=imperial`;
+function getForecast(lat, lon) {
+    const forecastUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=${apiKey}&units=metric`;
 
     fetch(forecastUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            const forecastContainer = document.getElementById('forecastContainer');
-            forecastContainer.innerHTML = ''; // Clear previous forecast
+            const forecastDiv = document.getElementById('forecast');
+            forecastDiv.innerHTML = '<h3>7-Day Forecast</h3>';
 
             data.daily.slice(0, 7).forEach(day => {
                 const date = new Date(day.dt * 1000);
-                const options = { weekday: 'long', month: 'long', day: 'numeric' };
-                const formattedDate = date.toLocaleDateString(undefined, options);
-                const tempDay = day.temp.day;
-                const tempNight = day.temp.night;
-                const description = day.weather[0].description;
-
-                const forecastHTML = `
+                const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+                forecastDiv.innerHTML += `
                     <div class="forecast-day">
-                        <strong>${formattedDate}</strong>: 
-                        Day: ${tempDay}°F, Night: ${tempNight}°F, ${description}
+                        <h4>${dayOfWeek}</h4>
+                        <p>${date.toLocaleDateString()}</p>
+                        <p id="day-temp">Temp: ${day.temp.day} °F</p>
+                        <p id="day-description">${day.weather[0].description}</p>
                     </div>
                 `;
-                forecastContainer.innerHTML += forecastHTML;
             });
         })
         .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
+            const forecastDiv = document.getElementById('forecast');
+            forecastDiv.innerHTML = `<p class="error">Error: Unable to fetch forecast data</p>`;
+            console.error('Error fetching the forecast data:', error);
         });
 }
 
-/* Function to get the user's current location and fetch weather
-function getCurrentLocationWeather() {
+function fetchWeatherByLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-
-            // Use OpenWeatherMap reverse geocoding to get the ZIP code
-            const reverseGeocodeUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
-
-            fetch(reverseGeocodeUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const zipCode = data[0].zip;
-
-                    // Set the ZIP code input field
-                    document.getElementById('zipCode').value = zipCode;
-
-                    // Fetch weather for the current ZIP code
-                    fetchWeather(zipCode);
-                })
-                .catch(error => {
-                    console.error('Error fetching ZIP code:', error);
-                });
-        }, error => {
-            console.error('Geolocation error:', error);
-            alert('Unable to retrieve your location.');
+            getWeather(null, lat, lon);
+        }, () => {
+            document.getElementById('weather').innerHTML = `<p class="error">Error: Unable to retrieve your location</p>`;
         });
     } else {
-        alert('Geolocation is not supported by your browser.');
+        document.getElementById('weather').innerHTML = `<p class="error">Error: Geolocation is not supported by this browser</p>`;
     }
-}*/
+}
 
-// Event listener for the button click
-document.getElementById('getWeatherBtn').addEventListener('click', function() {
+// Automatically fetch weather on page load based on user's location
+window.onload = fetchWeatherByLocation;
+
+// Function to get weather based on ZIP code input
+function getWeatherByZip(event) {
+    event.preventDefault(); // Prevent form submission from refreshing the page
     const zipCode = document.getElementById('zipCode').value;
-    if (zipCode) {
-        fetchWeather(zipCode);
-    } else {
-        alert('Please enter a valid ZIP code.');
-    }
-});
+    getWeather(zipCode);
+}
 
-// Fetch weather on page load using the current location
-window.onload = function() {
-    getCurrentLocationWeather();
-};
+// Attach the function to the form's submit event
+document.getElementById('zipForm').addEventListener('submit', getWeatherByZip);

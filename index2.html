@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body id="container">
+    <div class="m-container">
+        <header class="m-header">
+            <div id="location" class="m-header__name"></div>
+            <form id="zipForm" class="m-header__zip">
+                <input type="text" id="zipCode" placeholder="Enter ZIP code">
+                <input type="submit" value="Get The Weather">
+            </form>
+        </header>
+        <div id="weather">
+            <p class="loading">Loading weather data...</p>
+        </div>
+    </div>
+
+    <div id="forecast"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

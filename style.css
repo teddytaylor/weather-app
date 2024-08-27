@@ -1,69 +1,52 @@
+
 body {
-    font-family: 'Helvetica', sans-serif;
-    padding: 0;
-    margin: 0;
-    background: url('images/background.jpg');
-    background-size: cover; 
-    background-attachment: fixed;
-}      
-
-div {
-    box-sizing: border-box;
+    font-family: sans-serif; 
 }
-.m-content__wrap {
-    padding: 0;
-    height: 100vh;
-}
-.m-content {
-    background: rgba(255,255,255,.5); 
-    margin: 0 auto;
-    max-width: 700px;
-    width: 100%;
+.m-container {
     padding: 2rem;
-    height: 100vh; 
-    display: flex;
-    flex-direction: column;
+    background: #ccc;
+    border-radius: 1rem; 
+    max-width: 700px;
+    margin: 25vh auto; 
+
+}
+
+.m-header {
+    display: flex; 
     align-items: center;
-    justify-content: center;
-}
-.m-content {
-    text-align: center;
-}
-
-.m-title {
-    margin: 0 0 1rem; 
-    text-transform: uppercase;
-}
-
-.m-temperature {
-    font-size: 5rem;
-}
-input,
-button {
-    padding: 1rem;
-    border-radius: .5rem;
-    font-size: 1rem;
-    border: 0; 
-}
-.m-zipcode {
+    justify-content: space-between;
     margin-bottom: 1rem; 
+
+    & h2 {
+        margin: 0; 
+    }
+}
+
+.m-weather {
     display: flex;
-    justify-content: center;
-    gap: .5rem;
+    align-items: center;
+    justify-content: space-between;
+
+    & .m-weather__temperature {
+        font-size: 5rem;
+    }
 }
-
-
-#map {
-    height: 400px;
-    /* Adjust the height of the map */
-    width: 100%;
-    margin-top: 20px;
+.sunny .m-container {
+    background-color: #f7e9a0;
 }
-
-#forecast {
-    margin-top: 20px;
+.cloudy .m-container {
+    background-color: #d3d3d3;
 }
-
-.forecast-day {
-    margin-bottom: 10px;
+.rainy .m-container {
+    background-color: #a0c4f7;
+}
+.snowy .m-container {
+    background-color: #e0f7fa;
+}
+.loading {
+    font-size: 1.2em;
+    color: #888;
+}
+.error {
+    color: red;
 }
